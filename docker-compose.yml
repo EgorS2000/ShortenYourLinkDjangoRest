@@ -1,0 +1,96 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - proxynet
+    volumes:
+      - ./home/db:/var/lib/postgresql/data:z
+
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - proxynet
+    ports:
+      - "5672"
+      - "15672"
+
+  web:
+    build: ./back
+    restart: unless-stopped
+    command: >
+      bash -c "python /home/back/manage.py check
+      && python /home/back/manage.py migrate
+      && python /home/back/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000"
+    volumes:
+      - ./back:/home/back
+    networks:
+      - proxynet
+    links:
+      - db
+    depends_on:
+      - db
+
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - "8002:80"
+    volumes:
+    - ./static:/static
+    - ./media:/media
+    networks:
+      - proxynet
+    links:
+      - web
+    depends_on:
+      - web
+
+  worker_1:
+    build: ./back
+    hostname: worker_1
+    command: celery -A ShortenYourLinkDjangoRest worker -l info
+#    command: celery -A ShortenYourLinkDjangoRest worker -l debug
+    volumes:
+      - ./back:/home/back
+    networks:
+      - proxynet
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - db
+      - rabbit
+
+  worker_2:
+    build: ./back
+    hostname: worker_2
+    command: celery -A ShortenYourLinkDjangoRest beat --loglevel=info
+#    command: celery -A ShortenYourLinkDjangoRest beat --loglevel=debug
+    volumes:
+      - ./back:/home/back
+    networks:
+      - proxynet
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - db
+      - rabbit
+
+networks:
+  proxynet:
+    name: custom_network
