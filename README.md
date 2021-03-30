@@ -2,6 +2,8 @@
 
 ShortenYourLink was built to shorten your long none-presentable link.
 
+These docs describe how to use the [ShortenYourLink](https://app.swaggerhub.com/apis/EgorS2000/ShortenYourLink/v1.0.0) API.
+
 ## Authorization
 
 All API requests require the use of a generated API key.
