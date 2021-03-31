@@ -1,6 +1,6 @@
 # Introduction
 
-ShortenYourLink was built to shorten your long none-presentable link.
+ShortenYourLink is DRF API, which was built to shorten your long none-presentable link.
 
 These docs describe how to use the [ShortenYourLink](https://app.swaggerhub.com/apis/EgorS2000/ShortenYourLink/v1.0.0) API.
 
