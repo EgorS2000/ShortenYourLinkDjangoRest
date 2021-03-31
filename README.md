@@ -17,10 +17,11 @@ To authenticate an API request, you should provide your API key in the `Authoriz
 
 Many API endpoints return the JSON representation of the resources created, edited or deleted. However, if an invalid request is submitted, or some other error occurs, ShortenYourLink returns a JSON response in the following format:
 
-javascript
+```javascript
 {
   "message" : string,
 }
+```
 
 ## Status Codes
 
